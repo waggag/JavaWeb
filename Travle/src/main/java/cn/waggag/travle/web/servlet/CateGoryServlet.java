@@ -28,6 +28,9 @@ public class CateGoryServlet extends BaseServlet {
         //1.调用Service查询List
         List<Category> categoryList = categoryService.findAll();
         //2.将List集合序列化
-        super.writeValueAsString(categoryList);
+//        String json = writeValueAsString(categoryList);
+//        response.setContentType("applicatin/json;charset=utf-8");
+//        response.getWriter().write(json);
+        writeValue(categoryList, response);
     }
 }

@@ -6,6 +6,7 @@ import cn.waggag.travle.domain.Category;
 import cn.waggag.travle.service.CategoryService;
 import cn.waggag.travle.utils.JedisUtil;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,10 @@ public class CategoryServiceImpl implements CategoryService {
     public List<Category> findAll() {
         //1.从Redis中查询数据
         Jedis jedis = JedisUtil.getJedis();
-        Set<String> categorys = jedis.zrange("category", 0, -1);
+        //Set<String> categorys = jedis.zrange("category", 0, -1);
+        //查询sortedset中的分数cid和cname
+        Set<Tuple> categorys = jedis.zrangeWithScores("category", 0, -1);
+
         List<Category> categoryList = null;
         //2.判断查询的集合是否为空
         if(categorys == null || categorys.size() == 0){
@@ -36,9 +40,10 @@ public class CategoryServiceImpl implements CategoryService {
         }else{
             //如果不为空，将Set数据存入List返回
             categoryList = new ArrayList<Category>();
-            for (String name : categorys) {
+            for (Tuple tuple : categorys) {
                 Category category = new Category();
-                category.setCname(name);
+                category.setCname(tuple.getElement());
+                category.setCid((int)tuple.getScore());
                 categoryList.add(category);
             }
         }
